@@ -1,7 +1,7 @@
 public class CampaignUpdateBatch implements Database.Batchable<sObject> {
     
    public Database.QueryLocator start(Database.BatchableContext bc){
-    String query = 'SELECT Id, EndDate,Status FROM Campaign WHERE EndDate = YESTERDAY';
+    String query = 'SELECT Id, EndDate,Status FROM Campaign WHERE EndDate <= YESTERDAY AND  Status != \'Expired\'';
       return Database.getQueryLocator(query);
    }
 
