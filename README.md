@@ -1,18 +1,59 @@
-# Salesforce DX Project: Next Steps
+# 📦 Campaign Status Batch – Salesforce Apex Project
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+This Apex batch class automatically marks `Campaign` records as `"Expired"` if their `EndDate` has passed.
 
-## How Do You Plan to Deploy Your Changes?
+---
 
-Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
+## 🔧 Functionality
 
-## Configure Your Salesforce DX Project
+- Queries all Campaigns where `EndDate <= YESTERDAY` and `Status != 'Expired'`
+- Updates their Status to `"Expired"`
+- Sends a completion email using a Custom Metadata Type (`AppConfig__mdt`)
+- Error handling in both `execute` and `finish` methods
 
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
+---
 
-## Read All About It
+## 💡 Use Case
 
-- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+This batch job is useful in scenarios where campaign timelines need to be managed automatically. For example:
+- In nonprofit organizations tracking fundraising drives
+- In educational platforms managing term-based programs
+- In marketing teams managing time-bound promotions
+
+Even if there are no campaigns ending on a given day, running the batch daily ensures no records are missed.
+
+---
+
+## 🧪 Test Coverage
+
+The included test class:
+- Uses `@testSetup` to create reusable test data
+- Ensures that eligible records are marked as `"Expired"`
+- Confirms batch execution logic runs without errors
+
+---
+
+## 📁 Project Structure
+
+| File | Description |
+|------|-------------|
+| `CampaignUpdateBatch.cls` | Main batch class |
+| `CampaignUpdateBatchTest.cls` | Unit test class |
+| `CampaignUpdateScheduler.cls` | Scheduler to run the batch |
+| `AppConfig__mdt` | Custom Metadata for notification email |
+
+---
+
+## ⚙️ Prerequisites
+
+Before running this batch, make sure:
+- A Custom Metadata record named `Default` exists in `AppConfig__mdt`
+- A valid email address is set in `Notification_Email__c`
+
+---
+
+## 👤 Author
+
+**Aysun Bilgiç**  
+Salesforce Developer / Admin  
+[LinkedIn](https://www.linkedin.com/in/aysunbilgic) *(optional)*
