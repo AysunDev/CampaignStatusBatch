@@ -1,7 +1,7 @@
 @isTest
 public class CampaignUpdateBatchTest {
     @testSetup
-    static void makAsExpiredSetup(){
+    static void markAsExpiredSetup(){
         List<Campaign> cmpList = new List<Campaign>();
         
         for(integer i=0 ; i<2 ; i++){
