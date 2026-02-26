@@ -1,49 +1,32 @@
-public class CampaignUpdateBatch implements Database.Batchable<sObject> {
-    
-   public Database.QueryLocator start(Database.BatchableContext bc) {
-       String query = 'SELECT Id, EndDate, Status FROM Campaign WHERE EndDate <= YESTERDAY AND Status != \'Expired\'';
-       return Database.getQueryLocator(query);
-   }
+public with sharing class AccountUtility {
 
-   public void execute(Database.BatchableContext bc, List<Campaign> cmpList) {
-       try {
-           if (!cmpList.isEmpty()) {
-               for (Campaign cmp : cmpList) {
-                   cmp.Status = 'Expired';
-               }
-               update cmpList;
-           }          
-       } catch (Exception e) {
-           System.debug('Error updating campaigns: ' + e.getMessage());
-       }
-   }
+    public static Account getAccountById(Id accId) {
+        List<Account> accs = [SELECT Id FROM Account WHERE Id = :accId LIMIT 1];
+        return accs.isEmpty() ? null : accs[0];
+    }
 
-   public void finish(Database.BatchableContext bc) {
-       try {
-           AppConfig__mdt config = [
-               SELECT Notification_Email__c 
-               FROM AppConfig__mdt 
-               WHERE DeveloperName = 'Default' 
-               LIMIT 1
-           ];
+    public static Account getAccountByName(String accName) {
+        List<Account> accs = [SELECT Id, Name FROM Account WHERE Name = :accName LIMIT 1];
+        return accs.isEmpty() ? null : accs[0];
+    }
 
-           String recipient = config.Notification_Email__c;
+    public static List<Account> getAllAccounts() {
+        return [SELECT Id, Name, Active__c FROM Account];
+    }
 
-           if (String.isNotBlank(recipient)) {
-               Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-               mail.setToAddresses(new String[] { recipient });
-               mail.setReplyTo('batch@acme.com');
-               mail.setSenderDisplayName('Batch Processing');
-               mail.setSubject('Batch Process Completed');
-               mail.setPlainTextBody('The CampaignUpdateBatch has completed successfully.');
+    public static List<Account> getActiveAccounts() {
+        return [SELECT Id, Active__c FROM Account WHERE Active__c = 'Yes'];
+    }
 
-               Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
-           }
+    public static List<Account> getInactiveAccounts() {
+        return [SELECT Id, Active__c FROM Account WHERE Active__c = 'No'];
+    }
 
-       } catch (QueryException qe) {
-           System.debug('Query error in finish(): ' + qe.getMessage());
-       } catch (Exception e) {
-           System.debug('Unknown error in finish(): ' + e.getMessage());
-       }
-   }
+    public static void updateRatingOfAccounts(String rating) {
+        List<Account> accs = [SELECT Id, Rating FROM Account WHERE Rating != :rating LIMIT 2000];
+        if (accs.isEmpty()) return;
+
+        for (Account a : accs) a.Rating = rating;
+        update accs;
+    }
 }
